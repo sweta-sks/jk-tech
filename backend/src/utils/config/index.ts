@@ -10,4 +10,13 @@ export default () => ({
     sync: process.env.DATABASE_SYNC || 'true',
     logging: process.env.DATABASE_LOGGING === 'true',
   },
+  admin: {
+    email: process.env.ADMIN_EMAIL || 'admin@jkTech.com',
+    password: process.env.ADMIN_PASSWORD || 'admin@123',
+    name: process.env.ADMIN_NAME || 'Admin',
+  },
+  jwt: {
+    secret: process.env.JWT_SECRET || 'jkTechSecretKey',
+    expiresIn: '1h',
+  },
 });

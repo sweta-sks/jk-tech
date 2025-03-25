@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { ROLES_PROVIDER } from './constant';
+import { Repository } from 'typeorm';
+import { Role } from './entities/role.entity';
+import { DefaultRoleSetting } from './default-role.setting';
+import { RoleEnum } from './enums/roles.enum';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RoleService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  constructor(
+    @Inject(ROLES_PROVIDER)
+    private readonly roleRepository: Repository<Role>,
+  ) {}
+  async onModuleInit() {
+    const defaultRoles = DefaultRoleSetting();
+    const roles = await this.roleRepository.find();
+    console.log({ roles });
+    if (roles.length === 0) {
+      await this.roleRepository.save(defaultRoles);
+    }
+  }
+  async addUserToRole(userId: string, roleName: RoleEnum) {
+    const role = await this.roleRepository.findOne({
+      where: {
+        name: roleName,
+      },
+    });
+
+    if (!role) {
+      throw new Error('Role not found');
+    }
+    const user = new User();
+    user.id = userId;
+    role.users.push(user);
+    return this.roleRepository.save(role);
   }
 
-  findAll() {
-    return `This action returns all role`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
-  }
-
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async findAll() {
+    return await this.roleRepository.find();
   }
 }

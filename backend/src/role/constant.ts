@@ -1,0 +1,1 @@
+export const ROLES_PROVIDER = 'ROLES_PROVIDER';
