@@ -17,7 +17,7 @@ export class RoleService {
   async onModuleInit() {
     const defaultRoles = DefaultRoleSetting();
     const roles = await this.roleRepository.find();
-    console.log({ roles });
+
     if (roles.length === 0) {
       await this.roleRepository.save(defaultRoles);
     }
