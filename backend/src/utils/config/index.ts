@@ -32,4 +32,13 @@ export default () => ({
   bcrypt: {
     salt: parseInt(process.env.BCRYPT_SALT, 10) || 10,
   },
+
+  ingestionService: {
+    url: process.env.SIGN_SERVICE_URL || 'localhost:4001',
+
+    rabbit: {
+      url: process.env.RABBITMQ_URI,
+      queue: process.env.INGESTION_SERVICE_QUEUE || 'ingestion-queue',
+    },
+  },
 });
