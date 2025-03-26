@@ -20,9 +20,14 @@ export default () => ({
       '$2b$10$YHBNVu6Qgkk0JriIzumaxuC4uMfCPg/SmyHsXZSgtPey0r1MiyW9C',
     name: process.env.ADMIN_NAME || 'Admin',
   },
-  jwt: {
-    secret: process.env.JWT_SECRET || 'jkTechSecretKey',
-    expiresIn: '1h',
+  token: {
+    jwt: {
+      secret: process.env.JWT_SECRET || 'jwtSecretKey',
+      signOptions: {
+        expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+        issuer: process.env.JWT_ISSUER || 'jk-tech',
+      },
+    },
   },
   bcrypt: {
     salt: parseInt(process.env.BCRYPT_SALT, 10) || 10,

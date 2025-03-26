@@ -1,8 +1,10 @@
 import { Exclude } from 'class-transformer';
+import { Role } from 'src/role/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -23,15 +25,22 @@ export class User {
   })
   email: string;
 
-  @Exclude()
-  @Column({
-    default: null,
-  })
+  // @Exclude()
+  @Column()
   password: string;
+
+  @ManyToOne(() => Role, {
+    eager: true,
+  })
+  role: Role;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  constructor(partial: Partial<User> = {}) {
+    Object.assign(this, partial);
+  }
 }

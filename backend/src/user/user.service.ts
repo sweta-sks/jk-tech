@@ -6,7 +6,9 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { console } from 'inspector';
+import { RoleService } from 'src/role/role.service';
+import { jwtPayload } from 'src/auth/strategies/jwt.strategy';
+import { RoleEnum } from 'src/role/enums/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -15,6 +17,7 @@ export class UserService {
     @Inject(USER_PROVIDER)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly roleService: RoleService,
   ) {}
 
   async comparePassword(
@@ -28,11 +31,37 @@ export class UserService {
     const salt = await bcrypt.genSalt(this.configService.get('bcrypt.salt'));
     return await bcrypt.hash(password, salt);
   }
+
+  async authenticateUser(email: string, password: string) {
+    try {
+      console.log(email, password);
+      const user = await this.userRepository.findOne({
+        where: {
+          email,
+        },
+      });
+      console.log(user);
+      if (!user || !user.password) {
+        throw new HttpException('Invalid credentials', 400);
+      }
+
+      const isMatch = await this.comparePassword(password, user.password);
+      if (!isMatch) {
+        throw new HttpException('Invalid credentials', 400);
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error(`Error authenticating user: ${error.message}`);
+
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
   async onModuleInit() {
     try {
       const adminUser = await this.configService.get('admin');
       // const password = await this.encryptPassword(adminUser.password);
-
+      // await this.userRepository.delete({});
       const existSuperAdmin = await this.userRepository.findOne({
         where: {
           email: adminUser.email,
@@ -40,10 +69,15 @@ export class UserService {
       });
 
       if (!existSuperAdmin) {
+        const role = await this.roleService.getRoleByName(RoleEnum.ADMIN);
+        console.log({ role });
         const user = this.userRepository.create({
           name: adminUser.name,
           email: adminUser.email,
           password: adminUser.password,
+          role: {
+            id: role.id,
+          },
         });
 
         await this.userRepository.save(user);
@@ -52,7 +86,29 @@ export class UserService {
       this.logger.error(err);
     }
   }
+  async jwtValidate(payload: jwtPayload) {
+    try {
+      const { id } = payload;
 
+      const user = await this.findOne(id);
+      if (!user) {
+        return null;
+      }
+      console.log({ user });
+      return user;
+
+      // return {
+      //   ...payload,
+      //   email: user.email,
+      //   role: user.role.name,
+      //   name: user.name,
+      //   permissions: user.role.permissions,
+      // };
+    } catch (error) {
+      this.logger.error(`Error validating jwt: ${error.message}`);
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
   async create(createUserDto: CreateUserDto) {
     try {
       const existUser = await this.userRepository.findOne({
@@ -63,8 +119,12 @@ export class UserService {
       if (existUser) {
         throw new HttpException('Email already exists', 400);
       }
-      const user = this.userRepository.create(createUserDto);
-      return this.userRepository.save(user);
+      const user = await this.userRepository.save({
+        ...createUserDto,
+        role: {
+          name: createUserDto.role,
+        },
+      });
     } catch (error) {
       this.logger.error(error.message);
       throw new HttpException(error.message, error.status || 500);

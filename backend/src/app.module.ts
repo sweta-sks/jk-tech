@@ -7,8 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { DocumentModule } from './document/document.module';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { UserModule } from './user/user.module';
+import { JwtAuthGuard } from './utils/guards/auth.guard';
 import { RoleModule } from './role/role.module';
 import config from './utils/config';
+import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +25,12 @@ import config from './utils/config';
     RoleModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

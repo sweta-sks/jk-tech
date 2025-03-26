@@ -17,16 +17,6 @@ export class Role {
   @Column()
   name: string;
 
-  @ManyToMany(() => User)
-  @JoinTable()
-  users: User[];
-
   @Column('simple-array')
   permissions: string[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }
