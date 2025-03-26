@@ -6,12 +6,19 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { AuthenticatedUser } from 'src/auth/strategies/jwt.strategy';
+import { PoliciesGuard } from 'src/utils/guards/policy.guard';
 
 @Controller('user')
+@ApiBearerAuth()
+@UseGuards(PoliciesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -28,5 +35,10 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.userService.delete(id);
   }
 }

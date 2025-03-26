@@ -7,6 +7,8 @@ import { Public } from 'src/utils/decorators/public.decorator';
 
 import { JwtAuthGuard } from 'src/utils/guards/auth.guard';
 import { ApiSecurity } from '@nestjs/swagger';
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { AuthenticatedUser } from './strategies/jwt.strategy';
 
 @Controller('auth')
 @ApiSecurity('bearer')
@@ -23,8 +25,8 @@ export class AuthController {
   remove(
     @Body() logoutDto: LogoutDto,
     @Req() req: any,
-    // @CurrentUser() user: AuthenticatedUser,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return req.user;
+    return user;
   }
 }

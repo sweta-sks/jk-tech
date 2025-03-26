@@ -34,18 +34,18 @@ export class UserService {
 
   async authenticateUser(email: string, password: string) {
     try {
-      console.log(email, password);
-      const user = await this.userRepository.findOne({
-        where: {
-          email,
-        },
-      });
-      console.log(user);
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where('user.email = :email', { email })
+        .getOne();
+
       if (!user || !user.password) {
         throw new HttpException('Invalid credentials', 400);
       }
 
       const isMatch = await this.comparePassword(password, user.password);
+
       if (!isMatch) {
         throw new HttpException('Invalid credentials', 400);
       }
@@ -70,7 +70,7 @@ export class UserService {
 
       if (!existSuperAdmin) {
         const role = await this.roleService.getRoleByName(RoleEnum.ADMIN);
-        console.log({ role });
+
         const user = this.userRepository.create({
           name: adminUser.name,
           email: adminUser.email,
@@ -94,16 +94,12 @@ export class UserService {
       if (!user) {
         return null;
       }
-      console.log({ user });
-      return user;
 
-      // return {
-      //   ...payload,
-      //   email: user.email,
-      //   role: user.role.name,
-      //   name: user.name,
-      //   permissions: user.role.permissions,
-      // };
+      return {
+        ...user,
+        role: user.role.name,
+        permissions: user.role.permissions,
+      };
     } catch (error) {
       this.logger.error(`Error validating jwt: ${error.message}`);
       throw new HttpException(error.message, error.status || 500);
@@ -119,12 +115,17 @@ export class UserService {
       if (existUser) {
         throw new HttpException('Email already exists', 400);
       }
+      createUserDto.password = await this.encryptPassword(
+        createUserDto.password,
+      );
+      const role = await this.roleService.getRoleByName(createUserDto.role);
       const user = await this.userRepository.save({
         ...createUserDto,
         role: {
-          name: createUserDto.role,
+          id: role.id,
         },
       });
+      return user;
     } catch (error) {
       this.logger.error(error.message);
       throw new HttpException(error.message, error.status || 500);
@@ -146,5 +147,14 @@ export class UserService {
     return await this.userRepository.findOne({
       where: { id },
     });
+  }
+
+  async delete(id: string) {
+    try {
+      return await this.userRepository.delete({ id });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 }

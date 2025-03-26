@@ -32,7 +32,6 @@ export class DocumentService {
   async create(file: Express.Multer.File, body: CreateDocumentDto) {
     try {
       const hostUrl = this.configService.get('host.url');
-      console.log({ hostUrl });
       const extension = file.originalname.split('.').pop();
       const fileId = uuidV4();
       if (!fs.existsSync('uploads')) {

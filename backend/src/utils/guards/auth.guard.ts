@@ -23,8 +23,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    console.log('Private route');
-
     return super.canActivate(context);
   }
 

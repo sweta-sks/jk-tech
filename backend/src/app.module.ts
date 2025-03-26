@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './utils/guards/auth.guard';
 import { RoleModule } from './role/role.module';
 import config from './utils/config';
 import { APP_GUARD } from '@nestjs/core';
+import { CaslModule } from './casl/casl.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
     IngestionModule,
     UserModule,
     RoleModule,
+    CaslModule,
   ],
   controllers: [AppController],
   providers: [
