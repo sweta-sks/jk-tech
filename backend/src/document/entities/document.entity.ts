@@ -17,8 +17,10 @@ export class Document {
   @Column()
   mimeType: string;
 
-  @Column()
-  size: number;
+  @Column({
+    nullable: true,
+  })
+  size: string;
 
   @Column()
   extension: string;

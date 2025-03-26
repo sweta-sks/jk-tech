@@ -23,7 +23,7 @@ export const DefaultRoleSetting = () => {
     if (role === RoleEnum.VIEWER) {
       return {
         name: role,
-        permissions: [PermissionEnum.READ, PermissionEnum.CREATE],
+        permissions: [PermissionEnum.READ],
       };
     }
 

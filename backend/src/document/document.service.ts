@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { DOCUMENT_PROVIDER } from './constant';
@@ -12,12 +12,16 @@ import { convertBytes } from 'src/utils/convert-file';
 
 @Injectable()
 export class DocumentService {
+  private readonly logger = new Logger(DocumentService.name);
   constructor(
     @Inject(DOCUMENT_PROVIDER)
     private readonly documentRepository: Repository<Document>,
     private readonly configService: ConfigService,
   ) {}
 
+  // async onModuleInit() {
+  //   await this.documentRepository.delete({});
+  // }
   async getSizeOfDocument(path: string) {
     const stats = await stat(path);
     const size = stats.size;
@@ -44,25 +48,35 @@ export class DocumentService {
         id: fileId,
         name: file.originalname,
         mimeType: file.mimetype,
-        size: parseFloat(size),
+        size: size,
         extension,
       });
 
       return await this.documentRepository.save(fileData);
     } catch (err) {
-      console.log(err);
+      this.logger.error(err);
       throw new HttpException(err.message, err.status || 500);
     }
   }
 
   async findAll() {
-    return await this.documentRepository.find();
+    try {
+      return await this.documentRepository.find();
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 
   async findOne(id: string) {
-    return await this.documentRepository.findOne({
-      where: { id },
-    });
+    try {
+      return await this.documentRepository.findOne({
+        where: { id },
+      });
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 
   async update(id: string, file: Express.Multer.File) {
@@ -82,12 +96,13 @@ export class DocumentService {
 
       document.name = file.originalname;
       document.mimeType = file.mimetype;
-      document.size = parseFloat(size);
+      document.size = size;
       document.extension = extension;
 
       return await this.documentRepository.save(document);
-    } catch (e) {
-      throw new HttpException(e.message, e.status || 500);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ROLES_PROVIDER } from './constant';
@@ -10,6 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RoleService {
+  private readonly logger = new Logger(RoleService.name);
   constructor(
     @Inject(ROLES_PROVIDER)
     private readonly roleRepository: Repository<Role>,
@@ -23,22 +24,32 @@ export class RoleService {
     }
   }
   async addUserToRole(userId: string, roleName: RoleEnum) {
-    const role = await this.roleRepository.findOne({
-      where: {
-        name: roleName,
-      },
-    });
+    try {
+      const role = await this.roleRepository.findOne({
+        where: {
+          name: roleName,
+        },
+      });
 
-    if (!role) {
-      throw new Error('Role not found');
+      if (!role) {
+        throw new Error('Role not found');
+      }
+      const user = new User();
+      user.id = userId;
+      role.users.push(user);
+      return this.roleRepository.save(role);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
     }
-    const user = new User();
-    user.id = userId;
-    role.users.push(user);
-    return this.roleRepository.save(role);
   }
 
   async findAll() {
-    return await this.roleRepository.find();
+    try {
+      return await this.roleRepository.find();
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new HttpException(error.message, error.status || 500);
+    }
   }
 }

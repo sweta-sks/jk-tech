@@ -5,7 +5,7 @@ import {
   IsUUID,
   MinLength,
 } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -13,7 +13,7 @@ export class CreateUserDto {
 
   @IsEmail()
   @IsNotEmpty()
-  @Expose()
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 
   @MinLength(6)
