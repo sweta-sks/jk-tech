@@ -1,7 +1,7 @@
-import { IsDefined, IsNumber } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 
 export class CreateIngestionDto {
-  @IsNumber()
+  @IsString()
   @IsDefined()
-  documentId: number;
+  documentId: string;
 }

@@ -34,4 +34,9 @@ export class IngestionController {
   findOne(@Param('id') id: string) {
     return this.ingestionService.findOne(id);
   }
+
+  @Get()
+  findAll() {
+    return this.ingestionService.findAll();
+  }
 }
