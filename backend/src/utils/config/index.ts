@@ -15,11 +15,16 @@ export default () => ({
   },
   admin: {
     email: process.env.ADMIN_EMAIL || 'admin@jkTech.com',
-    password: process.env.ADMIN_PASSWORD || 'admin@123',
+    password:
+      process.env.ADMIN_PASSWORD ||
+      '$2b$10$YHBNVu6Qgkk0JriIzumaxuC4uMfCPg/SmyHsXZSgtPey0r1MiyW9C',
     name: process.env.ADMIN_NAME || 'Admin',
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'jkTechSecretKey',
     expiresIn: '1h',
+  },
+  bcrypt: {
+    salt: parseInt(process.env.BCRYPT_SALT, 10) || 10,
   },
 });
