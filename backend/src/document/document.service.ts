@@ -32,17 +32,17 @@ export class DocumentService {
   async create(file: Express.Multer.File, body: CreateDocumentDto) {
     try {
       const hostUrl = this.configService.get('host.url');
+
       const extension = file.originalname.split('.').pop();
       const fileId = uuidV4();
       if (!fs.existsSync('uploads')) {
         fs.mkdirSync('uploads');
       }
       const filePath = `uploads/${fileId}.${extension}`;
-      console.log(filePath);
 
       fs.writeFileSync(`./${filePath}`, file.buffer);
       const size = await this.getSizeOfDocument(filePath);
-      console.log({ size });
+
       const fileData = await this.documentRepository.create({
         id: fileId,
         name: file.originalname,

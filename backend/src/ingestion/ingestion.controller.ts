@@ -1,9 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { IngestionService } from './ingestion.service';
 import { CreateIngestionDto } from './dto/create-ingestion.dto';
 import { UpdateIngestionDto } from './dto/update-ingestion.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { PoliciesGuard } from 'src/utils/guards/policy.guard';
 
 @Controller('ingestion')
+@ApiBearerAuth()
+@UseGuards(PoliciesGuard)
 export class IngestionController {
   constructor(private readonly ingestionService: IngestionService) {}
 
@@ -23,7 +36,10 @@ export class IngestionController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateIngestionDto: UpdateIngestionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateIngestionDto: UpdateIngestionDto,
+  ) {
     return this.ingestionService.update(+id, updateIngestionDto);
   }
 
