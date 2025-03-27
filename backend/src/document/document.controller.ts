@@ -17,7 +17,7 @@ import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PoliciesGuard } from 'src/utils/guards/policy.guard';
+import { PoliciesGuard } from '../utils/guards/policy.guard';
 
 @Controller('document')
 @UseGuards(PoliciesGuard)

@@ -4,11 +4,10 @@ import { DataSource } from 'typeorm';
 import { DATABASE_PROVIDER } from './constant';
 
 // Import your entities
-import { User } from 'src/user/entities/user.entity';
-import { Role } from 'src/role/entities/role.entity';
-import { Ingestion } from 'src/ingestion/entities/ingestion.entity';
+import { User } from '../user/entities/user.entity';
+import { Role } from '../role/entities/role.entity';
 
-import { Document } from 'src/document/entities/document.entity';
+import { Document } from '../document/entities/document.entity';
 
 export const databaseProviders: Provider[] = [
   {
@@ -16,9 +15,10 @@ export const databaseProviders: Provider[] = [
     useFactory: async (configService: ConfigService): Promise<DataSource> => {
       try {
         const dbConfig = configService.get('database');
+        console.log(dbConfig);
         const dataSource = new DataSource({
           type: 'postgres',
-          host: dbConfig.host,
+          host: dbConfig.host || 'localhost',
           port: dbConfig.port,
           username: dbConfig.username,
           password: dbConfig.password,

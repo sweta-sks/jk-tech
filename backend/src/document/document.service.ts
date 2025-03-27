@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import { rm, stat } from 'fs/promises';
 import { v4 as uuidV4 } from 'uuid';
-import { convertBytes } from 'src/utils/convert-file';
+import { convertBytes } from '../utils/convert-file';
 
 @Injectable()
 export class DocumentService {
@@ -69,9 +69,13 @@ export class DocumentService {
 
   async findOne(id: string) {
     try {
-      return await this.documentRepository.findOne({
+      const data = await this.documentRepository.findOne({
         where: { id },
       });
+      if (!data) {
+        throw new HttpException('Document not found', 404);
+      }
+      return data;
     } catch (error) {
       this.logger.error(error.message);
       throw new HttpException(error.message, error.status || 500);

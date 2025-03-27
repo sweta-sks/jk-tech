@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { jwtPayload } from './strategies/jwt.strategy';
 import { JwtSignOptions, JwtService } from '@nestjs/jwt';
 
@@ -13,6 +13,7 @@ export class AuthService {
 
   async authenticateUser(loginDto: LoginDto) {
     try {
+      console.log('loginDto', loginDto);
       const user = await this.userService.authenticateUser(
         loginDto.email,
         loginDto.password,

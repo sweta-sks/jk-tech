@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { HttpException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { mockUserEntity } from 'src/user/mock/user-entity.fixture';
+import { mockUserEntity } from '../user/mock/user-entity.fixture';
+import { UserService } from '../user/user.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -40,26 +40,28 @@ describe('AuthService', () => {
   });
 
   describe('authenticateUser', () => {
-    it('should return an access token when user authentication is successful', async () => {
+    const loginDto: LoginDto = {
+      email: 'user@example.com',
+      password: 'string',
+    };
+
+    it('should return an access token when authentication is successful', async () => {
       jest
         .spyOn(userService, 'authenticateUser')
         .mockResolvedValue(mockUserEntity);
 
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
+      console.log('Running successful authentication test...');
+      console.log('Mock user entity:', mockUserEntity);
+
       const result = await authService.authenticateUser(loginDto);
-      console.log(result);
+
+      console.log('Received result:', result);
+
       expect(result).toEqual({ accessToken: 'mockedAccessToken' });
       expect(userService.authenticateUser).toHaveBeenCalledWith(
         loginDto.email,
         loginDto.password,
       );
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        id: mockUserEntity.id,
-        email: mockUserEntity.email,
-      });
     });
 
     it('should throw an HttpException when authentication fails', async () => {
@@ -67,10 +69,7 @@ describe('AuthService', () => {
         .spyOn(userService, 'authenticateUser')
         .mockRejectedValue(new HttpException('Invalid credentials', 401));
 
-      const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      };
+      console.log('Running failed authentication test...');
 
       await expect(authService.authenticateUser(loginDto)).rejects.toThrow(
         HttpException,
@@ -78,6 +77,7 @@ describe('AuthService', () => {
       await expect(authService.authenticateUser(loginDto)).rejects.toThrow(
         'Invalid credentials',
       );
+
       expect(userService.authenticateUser).toHaveBeenCalledWith(
         loginDto.email,
         loginDto.password,

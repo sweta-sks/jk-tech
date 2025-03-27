@@ -6,11 +6,11 @@ import {
   PureAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { AuthenticatedUser } from 'src/auth/strategies/jwt.strategy';
-import { Ingestion } from 'src/ingestion/entities/ingestion.entity';
-import { PermissionEnum } from 'src/role/enums/permissions.enum';
+import { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
+import { Ingestion } from '../../ingestion/entities/ingestion.entity';
+import { PermissionEnum } from '../../role/enums/permissions.enum';
 
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 
 export type Subjects =
   | InferSubjects<typeof User | typeof Document | typeof Ingestion>

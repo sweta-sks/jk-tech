@@ -7,7 +7,7 @@ import { Public } from 'src/utils/decorators/public.decorator';
 
 import { JwtAuthGuard } from 'src/utils/guards/auth.guard';
 import { ApiSecurity } from '@nestjs/swagger';
-import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { CurrentUser } from '../utils/decorators/current-user.decorator';
 import { AuthenticatedUser } from './strategies/jwt.strategy';
 
 @Controller('auth')

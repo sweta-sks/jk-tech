@@ -6,9 +6,9 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { RoleService } from 'src/role/role.service';
-import { jwtPayload } from 'src/auth/strategies/jwt.strategy';
-import { RoleEnum } from 'src/role/enums/roles.enum';
+import { RoleService } from '../role/role.service';
+import { jwtPayload } from '../auth/strategies/jwt.strategy';
+import { RoleEnum } from '../role/enums/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -50,10 +50,11 @@ export class UserService {
         throw new HttpException('Invalid credentials', 400);
       }
 
-      return user;
+      // Remove password from returned user object
+      const { password: _, ...result } = user;
+      return result;
     } catch (error) {
       this.logger.error(`Error authenticating user: ${error.message}`);
-
       throw new HttpException(error.message, error.status || 500);
     }
   }
@@ -118,6 +119,7 @@ export class UserService {
       createUserDto.password = await this.encryptPassword(
         createUserDto.password,
       );
+
       const role = await this.roleService.getRoleByName(createUserDto.role);
       const user = await this.userRepository.save({
         ...createUserDto,

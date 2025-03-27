@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { DATABASE_PROVIDER } from 'src/database/constant';
+import { DATABASE_PROVIDER } from '../database/constant';
 import { ROLES_PROVIDER } from './constant';
 import { Role } from './entities/role.entity';
 

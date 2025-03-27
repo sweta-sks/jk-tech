@@ -12,9 +12,9 @@ import { IngestionService } from './ingestion.service';
 import { CreateIngestionDto } from './dto/create-ingestion.dto';
 import { UpdateIngestionDto } from './dto/update-ingestion.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { PoliciesGuard } from 'src/utils/guards/policy.guard';
-import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
-import { AuthenticatedUser } from 'src/auth/strategies/jwt.strategy';
+import { PoliciesGuard } from '../utils/guards/policy.guard';
+import { CurrentUser } from '../utils/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/strategies/jwt.strategy';
 
 @Controller('ingestion')
 @ApiBearerAuth()

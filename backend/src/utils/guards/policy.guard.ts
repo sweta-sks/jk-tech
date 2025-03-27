@@ -6,12 +6,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { PermissionEnum } from 'src/role/enums/permissions.enum';
+import { CaslAbilityFactory } from '../../casl/casl-ability.factory/casl-ability.factory';
+import { PermissionEnum } from '../../role/enums/permissions.enum';
 import {
   CHECK_ABILITIES_KEY,
   RequiredRule,
-} from 'src/utils/decorators/ability.decorator';
+} from '../../utils/decorators/ability.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
