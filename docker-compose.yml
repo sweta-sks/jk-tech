@@ -1,6 +1,29 @@
 version: '3.7'
 
 services:
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - 4000:4000
+    depends_on:
+      - rabbit
+    volumes:
+      - ./backend/uploads:/app/uploads
+    env_file:
+      - ./env/backend.env
+    environment:
+      - RABBITMQ_URI=amqp://jktech:rabbitMq@rabbit:5672
+
+  ingestion:
+    build: ./ingestion
+    restart: always
+    depends_on:
+      - rabbit
+      - backend
+    environment:
+      - RABBITMQ_URI=amqp://jktech:rabbitMq@rabbit:5672
+
   postgres:
     image: postgres:13
     container_name: postgres_db
@@ -22,7 +45,7 @@ services:
       RABBITMQ_DEFAULT_PASS: rabbitMq
     ports:
       - '5672:5672'
-      - '15672:15672'  # Web management UI
+      - '15672:15672'
 
 volumes:
   postgres_data:
