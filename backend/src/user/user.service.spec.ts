@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { RoleEnum } from '../role/enums/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { USER_PROVIDER } from './constant';
+import { mockCurrentUser } from './mock/user-entity.fixture';
 
 describe('UserService', () => {
   let service: UserService;
@@ -252,7 +253,7 @@ describe('UserService', () => {
         role: { id: 'role-id' },
       });
 
-      const result = await service.create(createUserDto);
+      const result = await service.create(createUserDto, mockCurrentUser);
 
       expect(result.password).toBe('hashedPassword');
       expect(mockUserRepository.save).toHaveBeenCalled();
@@ -261,18 +262,18 @@ describe('UserService', () => {
     it('should throw error for existing email', async () => {
       mockUserRepository.findOne.mockResolvedValue({ id: 'existing-id' });
 
-      await expect(service.create(createUserDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        service.create(createUserDto, mockCurrentUser),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should throw error when role not found', async () => {
       mockUserRepository.findOne.mockResolvedValue(null);
       mockRoleService.getRoleByName.mockResolvedValue(null);
 
-      await expect(service.create(createUserDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        service.create(createUserDto, mockCurrentUser),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should throw error when password encryption fails', async () => {
@@ -282,9 +283,9 @@ describe('UserService', () => {
         .spyOn(service, 'encryptPassword')
         .mockRejectedValue(new Error('Encryption failed'));
 
-      await expect(service.create(createUserDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        service.create(createUserDto, mockCurrentUser),
+      ).rejects.toThrow(HttpException);
     });
   });
 

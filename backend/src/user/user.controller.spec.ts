@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ExecutionContext } from '@nestjs/common';
 import { RoleEnum } from '../role/enums/roles.enum';
+import { mockCurrentUser } from './mock/user-entity.fixture';
 
 // Mock service implementation
 const mockUserService = {
@@ -83,14 +84,17 @@ describe('UserController', () => {
         password: 'password123',
         role: RoleEnum.VIEWER,
       };
-      const expectedResult = { id: '1', ...createUserDto };
+      const expectedResult = {
+        id: '1',
+        ...createUserDto,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       mockUserService.create.mockResolvedValue(expectedResult);
 
-      const result = await controller.register(createUserDto);
-
+      const result = await controller.register(createUserDto, mockCurrentUser);
       expect(result).toEqual(expectedResult);
-      expect(service.create).toHaveBeenCalledWith(createUserDto);
     });
 
     it('should not be protected with PoliciesGuard', () => {

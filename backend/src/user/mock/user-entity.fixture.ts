@@ -11,8 +11,8 @@ export const mockUserEntity: User = {
   updatedAt: new Date('2025-03-27T10:15:31.682Z'),
   role: {
     id: 'e2676c70-faef-4c61-b285-bdd75abcbd71',
-    name: 'VIEWER',
-    permissions: ['read'],
+    name: 'ADMIN',
+    permissions: ['manage'],
   },
 };
 

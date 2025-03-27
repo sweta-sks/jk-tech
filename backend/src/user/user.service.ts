@@ -7,7 +7,7 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { RoleService } from '../role/role.service';
-import { jwtPayload } from '../auth/strategies/jwt.strategy';
+import { AuthenticatedUser, jwtPayload } from '../auth/strategies/jwt.strategy';
 import { RoleEnum } from '../role/enums/roles.enum';
 
 @Injectable()
@@ -106,8 +106,14 @@ export class UserService {
       throw new HttpException(error.message, error.status || 500);
     }
   }
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, currentUser: AuthenticatedUser) {
     try {
+      if (currentUser.role !== RoleEnum.ADMIN) {
+        throw new HttpException(
+          'You are not authorized to perform this action',
+          403,
+        );
+      }
       const existUser = await this.userRepository.findOne({
         where: {
           email: createUserDto.email,
@@ -127,7 +133,8 @@ export class UserService {
           id: role.id,
         },
       });
-      return user;
+      const { createdAt, updatedAt, ...rest } = user;
+      return rest;
     } catch (error) {
       this.logger.error(error.message);
       throw new HttpException(error.message, error.status || 500);
