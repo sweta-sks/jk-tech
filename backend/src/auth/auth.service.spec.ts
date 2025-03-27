@@ -50,12 +50,7 @@ describe('AuthService', () => {
         .spyOn(userService, 'authenticateUser')
         .mockResolvedValue(mockUserEntity);
 
-      console.log('Running successful authentication test...');
-      console.log('Mock user entity:', mockUserEntity);
-
       const result = await authService.authenticateUser(loginDto);
-
-      console.log('Received result:', result);
 
       expect(result).toEqual({ accessToken: 'mockedAccessToken' });
       expect(userService.authenticateUser).toHaveBeenCalledWith(
@@ -68,8 +63,6 @@ describe('AuthService', () => {
       jest
         .spyOn(userService, 'authenticateUser')
         .mockRejectedValue(new HttpException('Invalid credentials', 401));
-
-      console.log('Running failed authentication test...');
 
       await expect(authService.authenticateUser(loginDto)).rejects.toThrow(
         HttpException,

@@ -24,7 +24,6 @@ export class CaslAbilityFactory {
     const { can, cannot, build } = new AbilityBuilder<
       PureAbility<[PermissionEnum, Subjects]>
     >(PureAbility as AbilityClass<AppAbility>);
-    console.log('Creating ability for user:', user.role);
     user.permissions.map((permission: PermissionEnum | 'all') => {
       if (permission === 'all') return can(PermissionEnum.MANAGE, 'all');
       can(permission, 'all');

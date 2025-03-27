@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Exclude, Expose, Transform } from 'class-transformer';
-import { RoleEnum } from 'src/role/enums/roles.enum';
+import { RoleEnum } from '../../role/enums/roles.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {

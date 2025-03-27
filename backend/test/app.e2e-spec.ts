@@ -15,12 +15,11 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    // 🔹 Fetch authentication token before running tests
     const authResponse = await request(app.getHttpServer())
-      .post('/api/v1/auth/login') // Adjust endpoint if needed
+      .post('/api/v1/auth/login')
       .send({ email: 'user@example.com', password: 'string' });
     console.log(authResponse.body);
-    token = authResponse.body.accessToken; // Adjust based on your API response
+    token = authResponse.body.accessToken;
   });
 
   afterAll(async () => {

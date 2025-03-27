@@ -25,7 +25,7 @@ export class IngestionService {
           userId: user.id,
         }),
       );
-      console.log(response);
+
       return response;
     } catch (err) {
       throw new HttpException(err.message, err.status || 500);
@@ -37,7 +37,7 @@ export class IngestionService {
       const response = await firstValueFrom(
         this.ingestionClient.send('get_ingestion', id),
       );
-      console.log(response);
+
       return response;
     } catch (err) {
       throw new HttpException(err.message, err.status || 500);
@@ -49,7 +49,7 @@ export class IngestionService {
       const response = await firstValueFrom(
         this.ingestionClient.send('get_all_ingestion', {}),
       );
-      console.log(response);
+
       return response;
     } catch (err) {
       throw new HttpException(err.message, err.status || 500);

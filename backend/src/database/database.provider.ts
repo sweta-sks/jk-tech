@@ -15,7 +15,7 @@ export const databaseProviders: Provider[] = [
     useFactory: async (configService: ConfigService): Promise<DataSource> => {
       try {
         const dbConfig = configService.get('database');
-        console.log(dbConfig);
+
         const dataSource = new DataSource({
           type: 'postgres',
           host: dbConfig.host || 'localhost',

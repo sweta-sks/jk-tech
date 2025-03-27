@@ -13,7 +13,6 @@ export class AuthService {
 
   async authenticateUser(loginDto: LoginDto) {
     try {
-      console.log('loginDto', loginDto);
       const user = await this.userService.authenticateUser(
         loginDto.email,
         loginDto.password,
