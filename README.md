@@ -1,85 +1,81 @@
+Here's the enhanced README file incorporating all your requirements in a clean, developer-friendly format:
+
 # Document Management System with NestJS
 
 ## Overview
 
-This project is a Document Management System built with NestJS, PostgreSQL, and RabbitMQ. It features role-based access control, JWT authentication, and document processing capabilities with a mock ingestion service.
+A robust document management system built with NestJS, PostgreSQL, and RabbitMQ, featuring:
 
-## Key Features
-
-- **User Authentication**: JWT-based login system
-- **Role-Based Access Control**:
-  - Admin: Full CRUD operations
-  - Editor: Create, Read, Update operations
-  - Viewer: Read-only access
-- **Document Management**: Upload, retrieve, update, and delete documents
-- **Ingestion Service**: Mock microservice for document processing (simulating Python backend)
-- **API Documentation**: Swagger UI available at `/api/doc`
+- JWT authentication with role-based access control
+- Document processing pipeline with mock ingestion service
+- Comprehensive API documentation via Swagger
 
 ## System Architecture
 
-- **Backend**: NestJS
-- **Database**: PostgreSQL (TypeORM)
-- **Authentication**: JWT
-- **Authorization**: CASL for permission management
-- **Message Queue**: RabbitMQ for microservice communication
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   NestJS    │───▶│ PostgreSQL  │    │  RabbitMQ   │
+│  API Gateway│    │  (TypeORM)  │◀──▶│ (Microservices)
+└─────────────┘    └─────────────┘    └─────────────┘
+```
+
+## Key Components
+
+### Authentication & Authorization
+
+- JWT implementation: `backend/src/auth/strategies/jwt.strategy.ts`
+- Auth guard: `backend/src/utils/guards/auth.guard.ts`
+- CASL permission management:
+  - `backend/src/casl/casl-ability.factory`
+  - `backend/src/utils/guards/policy.guard.ts`
+
+### User Roles
+
+1. **Admin**: Full CRUD operations
+2. **Editor**: Create, read, and update operations
+3. **Viewer**: Read-only access
 
 ## Prerequisites
 
-- Docker
-- Docker Compose
-- Node.js (v16+ recommended)
+- Docker (v20.10+)
+- Docker Compose (v2.5+)
+- Node.js (v18+ recommended)
 
-## Setup Instructions
+## Quick Start
 
-1. **Clone the repository**
+```bash
+# Clone repository
+git clone [repository-url] && cd [project-directory]
 
-   ```bash
-   git clone [repository-url]
-   cd [project-directory]
-   ```
+# Build and start containers
+docker-compose build
+docker-compose up -d
 
-2. **Build and start containers**
+# Verify services are running
+docker-compose ps
+```
 
-   ```bash
-   docker-compose build
-   docker-compose up -d
-   ```
+## API Access
 
-3. **Access the application**
+### Swagger Documentation
 
-   - API: `http://localhost:4000`
-   - Swagger UI: `http://localhost:4000/api/doc`
-   - PostgreSQL: Port 5432
+Available at: http://localhost:4000/api/doc
 
-## API Usage
-
-### Authentication
-
-Admin login example:
+### Admin Authentication
 
 ```bash
 curl -X 'POST' \
   'http://localhost:4000/api/v1/auth/login' \
-  -H 'accept: */*' \
   -H 'Content-Type: application/json' \
-  -d '{
-  "password": "admin@123",
-  "email": "admin@jkTech.com"
-}'
+  -d '{"email":"admin@jkTech.com","password":"admin@123"}'
 ```
 
-### Document Operations
+### Key Endpoints:
 
-All document endpoints require JWT authentication. Include the token in the `Authorization` header.
+- `POST /api/v1/ingestion`- Trigger processing
+- `GET /api/v1/ingestion/{id}` - Check status and detail
 
-## Mock Ingestion Service
-
-The system includes a mock ingestion service that simulates:
-
-- Document processing
-- Status tracking
-
-## Testing (For QA)
+## Testing (QA)
 
 ### Prerequisites
 
