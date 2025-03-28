@@ -4,7 +4,6 @@ import { Public } from './utils/decorators/public.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller({ version: VERSION_NEUTRAL })
-@ApiBearerAuth()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
