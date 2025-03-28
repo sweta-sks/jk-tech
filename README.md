@@ -125,7 +125,15 @@ Sample Response:
 
 ## Key API Endpoints
 
-### 1. Document Ingestion Endpoint
+### 1. Document Management
+
+**`GET /api/v1/documents`** - List all accessible documents
+**`POST /api/v1/documents`** - Upload new document
+**`GET /api/v1/documents/{id}`** - Get document details
+**`PATCH /api/v1/documents/{id}`** - Update document metadata
+**`DELETE /api/v1/documents/{id}`** - Delete document (Admin only)
+
+### 2. Document Ingestion Endpoint
 
 **`POST /api/v1/ingestion`**
 
@@ -149,7 +157,7 @@ Request:
   }
   ```
 
-#### 2. Check Ingestion Status Endpoint
+#### 3. Check Ingestion Status Endpoint
 
 **`GET /api/v1/ingestion/{id}`**
 
@@ -167,14 +175,6 @@ Request:
     "updatedAt": "2025-03-28T00:27:24.081Z"
   }
   ```
-
-### 3. Document Management
-
-**`GET /api/v1/documents`** - List all accessible documents
-**`POST /api/v1/documents`** - Upload new document
-**`GET /api/v1/documents/{id}`** - Get document details
-**`PATCH /api/v1/documents/{id}`** - Update document metadata
-**`DELETE /api/v1/documents/{id}`** - Delete document (Admin only)
 
 ## 4. User Registration (Admin Only)
 
