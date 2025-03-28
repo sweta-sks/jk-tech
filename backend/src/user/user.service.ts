@@ -133,7 +133,7 @@ export class UserService {
           id: role.id,
         },
       });
-      const { createdAt, updatedAt, ...rest } = user;
+      const { password, ...rest } = user;
       return rest;
     } catch (error) {
       this.logger.error(error.message);
@@ -158,9 +158,50 @@ export class UserService {
     });
   }
 
-  async delete(id: string) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUser: AuthenticatedUser,
+  ) {
     try {
-      return await this.userRepository.delete({ id });
+      if (currentUser.role !== RoleEnum.ADMIN) {
+        throw new HttpException(
+          'You are not authorized to perform this action',
+          403,
+        );
+      }
+      const user = await this.userRepository.findOne({
+        where: { id },
+      });
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+      Object.assign(user, updateUserDto);
+      await this.userRepository.save(user);
+    } catch (err) {
+      this.logger.error(err);
+      throw new HttpException(err.message, err.status || 500);
+    }
+  }
+
+  async delete(id: string, user: AuthenticatedUser) {
+    try {
+      if (user.role !== RoleEnum.ADMIN) {
+        throw new HttpException(
+          'You are not authorized to perform this action',
+          403,
+        );
+      }
+      if (id === user.id) {
+        throw new HttpException('You cannot delete yourself', 403);
+      }
+      const deletedUser = await this.userRepository.delete({ id });
+      if (!deletedUser.affected) {
+        throw new HttpException('User not found', 404);
+      }
+      return {
+        message: 'User deleted successfully',
+      };
     } catch (error) {
       this.logger.error(error.message);
       throw new HttpException(error.message, error.status || 500);

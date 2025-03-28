@@ -1,5 +1,3 @@
-Here's the enhanced README file incorporating all your requirements in a clean, developer-friendly format:
-
 # Document Management System with NestJS
 
 ## Overview
@@ -45,7 +43,7 @@ A robust document management system built with NestJS, PostgreSQL, and RabbitMQ,
 
 ```bash
 # Clone repository
-git clone [repository-url] && cd [project-directory]
+git clone https://github.com/sweta-sks/jk-tech && cd jk-tech
 
 # Build and start containers
 docker-compose build
@@ -72,8 +70,47 @@ curl -X 'POST' \
 
 ### Key Endpoints:
 
-- `POST /api/v1/ingestion`- Trigger processing
-- `GET /api/v1/ingestion/{id}` - Check status and detail
+#### 1. Start Ingestion Endpoint
+
+**`POST /api/v1/ingestion`**
+
+- Purpose: Triggers processing of a document
+- Request:
+
+  ```
+  {
+    "documentId": "string"
+  }
+  ```
+
+- Response:
+
+  ```
+  {
+    "message": "Ingestion started",
+    "ingestionId": "32f5c7dd-d071-4564-b431-e749bb6b3815",
+    "status": "processing"
+  }
+  ```
+
+#### 2. Check Ingestion Status Endpoint
+
+**`GET /api/v1/ingestion/{id}`**
+
+- Purpose: Checks the status of a specific ingestion process
+- Request Parameter: `id` (the ingestionId from the first endpoint)
+- Response:
+
+  ```
+  {
+    "id": "32f5c7dd-d071-4564-b431-e749bb6b3815",
+    "documentId": "string",
+    "userId": "65b47002-dd94-475b-a0e1-81669ce83da7",
+    "status": "failed",
+    "createdAt": "2025-03-28T00:27:18.941Z",
+    "updatedAt": "2025-03-28T00:27:24.081Z"
+  }
+  ```
 
 ## Testing (QA)
 
@@ -104,3 +141,7 @@ npm test user.service
 # Run e2e tests
 npm run test:e2e
 ```
+
+# Author
+
+Sweta Kumari Singh

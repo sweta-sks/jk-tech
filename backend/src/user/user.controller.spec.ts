@@ -5,7 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PoliciesGuard } from '../utils/guards/policy.guard';
 import { Reflector } from '@nestjs/core';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, HttpException } from '@nestjs/common';
 import { RoleEnum } from '../role/enums/roles.enum';
 import { mockCurrentUser } from './mock/user-entity.fixture';
 
@@ -156,26 +156,91 @@ describe('UserController', () => {
     });
   });
 
-  describe('remove()', () => {
-    it('should delete a user', async () => {
-      const userId = '1';
-      const expectedResult = { affected: 1 };
+  describe('delete', () => {
+    const mockViewerUser = {
+      ...mockCurrentUser,
+      id: 'viewer-user-id',
+      role: RoleEnum.VIEWER,
+    };
 
-      mockUserService.delete.mockResolvedValue(expectedResult);
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
-      const result = await controller.remove(userId);
+    it('should delete a user when admin requests', async () => {
+      const userIdToDelete = 'user-to-delete';
+      const expectedResult = { message: 'User deleted successfully' };
+
+      jest.spyOn(service, 'delete').mockResolvedValue(expectedResult);
+
+      const result = await controller.remove(userIdToDelete, mockCurrentUser);
 
       expect(result).toEqual(expectedResult);
-      expect(service.delete).toHaveBeenCalledWith(userId);
+      expect(service.delete).toHaveBeenCalledWith(
+        userIdToDelete,
+        mockCurrentUser,
+      );
     });
 
-    it('should be protected with PoliciesGuard', () => {
-      const guards = Reflect.getMetadata(
-        '__guards__',
-        UserController.prototype.remove,
+    it('should throw 403 when non-admin tries to delete', async () => {
+      const userIdToDelete = 'some-user-id';
+
+      jest
+        .spyOn(service, 'delete')
+        .mockRejectedValue(
+          new HttpException(
+            'You are not authorized to perform this action',
+            403,
+          ),
+        );
+
+      await expect(
+        controller.remove(userIdToDelete, mockViewerUser),
+      ).rejects.toThrow(
+        new HttpException('You are not authorized to perform this action', 403),
       );
-      expect(guards).toContain(PoliciesGuard);
+
+      expect(service.delete).toHaveBeenCalledWith(
+        userIdToDelete,
+        mockViewerUser,
+      );
     });
+
+    it('should throw 403 when admin tries to delete themselves', async () => {
+      jest
+        .spyOn(service, 'delete')
+        .mockRejectedValue(
+          new HttpException('You cannot delete yourself', 403),
+        );
+
+      await expect(
+        controller.remove(mockCurrentUser.id, mockCurrentUser),
+      ).rejects.toThrow(new HttpException('You cannot delete yourself', 403));
+
+      expect(service.delete).toHaveBeenCalledWith(
+        mockCurrentUser.id,
+        mockCurrentUser,
+      );
+    });
+
+    it('should throw 404 when user not found', async () => {
+      const nonExistentUserId = 'non-existent-user';
+
+      jest
+        .spyOn(service, 'delete')
+        .mockRejectedValue(new HttpException('User not found', 404));
+
+      await expect(
+        controller.remove(nonExistentUserId, mockCurrentUser),
+      ).rejects.toThrow(new HttpException('User not found', 404));
+    });
+  });
+  it('should be protected with PoliciesGuard', () => {
+    const guards = Reflect.getMetadata(
+      '__guards__',
+      UserController.prototype.remove,
+    );
+    expect(guards).toContain(PoliciesGuard);
   });
 
   describe('Decorators', () => {

@@ -255,7 +255,6 @@ describe('UserService', () => {
 
       const result = await service.create(createUserDto, mockCurrentUser);
 
-      expect(result.password).toBe('hashedPassword');
       expect(mockUserRepository.save).toHaveBeenCalled();
     });
 
@@ -363,17 +362,67 @@ describe('UserService', () => {
   });
 
   describe('delete', () => {
-    it('should delete user and return delete result', async () => {
-      mockUserRepository.delete.mockResolvedValue({ affected: 1 });
+    const mockViewerUser = {
+      ...mockCurrentUser,
+      id: 'viewer-id',
+      role: RoleEnum.VIEWER,
+    };
 
-      const result = await service.delete('user-id');
-      expect(result).toEqual({ affected: 1 });
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it('should throw error when deletion fails', async () => {
+    it('should delete user and return delete result when admin requests', async () => {
+      const userIdToDelete = 'user-to-delete';
+      mockUserRepository.delete.mockResolvedValue({ affected: 1 });
+
+      const result = await service.delete(userIdToDelete, mockCurrentUser);
+
+      expect(result).toEqual({ message: 'User deleted successfully' });
+      expect(mockUserRepository.delete).toHaveBeenCalledWith({
+        id: userIdToDelete,
+      });
+    });
+
+    it('should throw 403 when non-admin tries to delete', async () => {
+      await expect(
+        service.delete('some-user-id', mockViewerUser),
+      ).rejects.toThrow(
+        new HttpException('You are not authorized to perform this action', 403),
+      );
+
+      expect(mockUserRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw 403 when admin tries to delete themselves', async () => {
+      await expect(
+        service.delete(mockCurrentUser.id, mockCurrentUser),
+      ).rejects.toThrow(new HttpException('You cannot delete yourself', 403));
+
+      expect(mockUserRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw 404 when user not found', async () => {
+      const nonExistentUserId = 'non-existent-user';
+      mockUserRepository.delete.mockResolvedValue({ affected: 0 });
+
+      await expect(
+        service.delete(nonExistentUserId, mockCurrentUser),
+      ).rejects.toThrow(new HttpException('User not found', 404));
+
+      expect(mockUserRepository.delete).toHaveBeenCalledWith({
+        id: nonExistentUserId,
+      });
+    });
+
+    it('should throw error when database operation fails', async () => {
       mockUserRepository.delete.mockRejectedValue(new Error('DB Error'));
 
-      await expect(service.delete('user-id')).rejects.toThrow(HttpException);
+      await expect(service.delete('user-id', mockCurrentUser)).rejects.toThrow(
+        new HttpException('DB Error', 500),
+      );
+
+      expect(mockUserRepository.delete).toHaveBeenCalledWith({ id: 'user-id' });
     });
   });
 });

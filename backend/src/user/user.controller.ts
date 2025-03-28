@@ -40,8 +40,19 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.userService.update(id, updateUserDto, user);
+  }
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.userService.delete(id);
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return await this.userService.delete(id, user);
   }
 }

@@ -21,6 +21,8 @@ services:
     depends_on:
       - rabbit
       - backend
+    env_file:
+      - ./env/ingestion.env
     environment:
       - RABBITMQ_URI=amqp://jktech:rabbitMq@rabbit:5672
 
@@ -48,4 +50,4 @@ services:
       - '15672:15672'
 
 volumes:
-  postgres_data:
+  postgres_data:{}
