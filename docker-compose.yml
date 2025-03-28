@@ -50,4 +50,4 @@ services:
       - '15672:15672'
 
 volumes:
-  postgres_data:{}
+  postgres_data: {}
