@@ -108,4 +108,23 @@ export class DocumentService {
       throw new HttpException(error.message, error.status || 500);
     }
   }
+
+  async remove(id: string) {
+    {
+      try {
+        const document = await this.documentRepository.findOne({
+          where: { id },
+        });
+        if (!document) {
+          throw new HttpException('Document not found', 404);
+        }
+        const filePath = `uploads/${document.id}.${document.extension}`;
+        await rm(filePath, { force: true });
+        return await this.documentRepository.delete(id);
+      } catch (error) {
+        this.logger.error(error.message);
+        throw new HttpException(error.message, error.status || 500);
+      }
+    }
+  }
 }

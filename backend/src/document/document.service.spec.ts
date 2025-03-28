@@ -244,7 +244,82 @@ describe('DocumentService', () => {
       ).rejects.toThrow(HttpException);
     });
   });
+  describe('remove', () => {
+    it('should successfully remove a document', async () => {
+      const mockDocument = {
+        id: uuidV4(),
+        name: 'test.pdf',
+        mimeType: 'application/pdf',
+        size: '100KB',
+        extension: 'pdf',
+      };
 
+      mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
+      (fsPromises.rm as jest.Mock).mockResolvedValue(undefined);
+      mockDocumentRepository.delete.mockResolvedValue({ raw: [], affected: 1 });
+
+      const result = await service.remove(mockDocument.id);
+
+      expect(result).toEqual({ raw: [], affected: 1 });
+      expect(mockDocumentRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockDocument.id },
+      });
+      expect(fsPromises.rm).toHaveBeenCalledWith(
+        `uploads/${mockDocument.id}.${mockDocument.extension}`,
+        { force: true },
+      );
+      expect(mockDocumentRepository.delete).toHaveBeenCalledWith(
+        mockDocument.id,
+      );
+    });
+
+    it('should throw HttpException when document not found', async () => {
+      mockDocumentRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.remove(uuidV4())).rejects.toThrow(
+        new HttpException('Document not found', 404),
+      );
+    });
+
+    it('should throw HttpException when file deletion fails', async () => {
+      const mockDocument = {
+        id: uuidV4(),
+        name: 'test.pdf',
+        mimeType: 'application/pdf',
+        size: '100KB',
+        extension: 'pdf',
+      };
+
+      mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
+      (fsPromises.rm as jest.Mock).mockRejectedValue(
+        new Error('File deletion error'),
+      );
+
+      await expect(service.remove(mockDocument.id)).rejects.toThrow(
+        new HttpException('File deletion error', 500),
+      );
+    });
+
+    it('should throw HttpException when database deletion fails', async () => {
+      const mockDocument = {
+        id: uuidV4(),
+        name: 'test.pdf',
+        mimeType: 'application/pdf',
+        size: '100KB',
+        extension: 'pdf',
+      };
+
+      mockDocumentRepository.findOne.mockResolvedValue(mockDocument);
+      (fsPromises.rm as jest.Mock).mockResolvedValue(undefined);
+      mockDocumentRepository.delete.mockRejectedValue(
+        new Error('Database deletion error'),
+      );
+
+      await expect(service.remove(mockDocument.id)).rejects.toThrow(
+        new HttpException('Database deletion error', 500),
+      );
+    });
+  });
   describe('getSizeOfDocument', () => {
     it('should throw HttpException when file stat fails', async () => {
       (fsPromises.stat as jest.Mock).mockRejectedValue(

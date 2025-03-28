@@ -2,39 +2,81 @@
 
 ## Overview
 
-A robust document management system built with NestJS, PostgreSQL, and RabbitMQ, featuring:
+A production-ready document management system built with NestJS that provides secure document handling with role-based access control, document processing pipeline, and microservices architecture. The system features:
 
-- JWT authentication with role-based access control
-- Document processing pipeline with mock ingestion service
-- Comprehensive API documentation via Swagger
+- 🔐 **Secure Authentication** : JWT-based authentication with password hashing
+- 🛡️ **Granular Authorization** : Role-based permissions using CASL
+- 📄 **Document Processing** : Mock ingestion service with status tracking
+- 📊 **Database Management** : PostgreSQL with TypeORM for data persistence
+- 🐇 **Microservices** : RabbitMQ for asynchronous communication
+- 📚 **API Documentation** : Comprehensive Swagger/OpenAPI documentation
 
 ## System Architecture
 
 ```
-
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│                  │     │                  │     │                  │
-│   NestJS         │─ ▶│  PostgreSQL      │──▶│   RabbitMQ       │
-│   API Gateway    │     │  (TypeORM)       │     │  (Microservices) │
-│                  │     │                  │     │                  │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
+┌─────────────────────┐     ┌──────────────────┐      ┌──────────────────┐
+│                     │     │                  │      │                  │
+│   NestJS API        │───▶│  PostgreSQL      │──▶ │   RabbitMQ       │
+│   (Main Service)    │     │  (Primary DB)    │      │  (Message Broker)│
+│                     │     │                  │      │                  │
+└─────────┬───────────┘     └──────────────────┘      └────────┬─────────┘
+          │                                                    │
+          │                                                    │
+┌─────────▼───────────┐                              ┌─────────▼─────────┐
+│                     │                              │                   │
+│   Authentication    │                              │   Ingestion       │
+│   Service           │                              │   Worker          │
+│                     │                              │   (Microservice)  │
+└─────────────────────┘                              └───────────────────┘
 ```
 
-## Key Components
+## Key Features
 
-### Authentication & Authorization
+### 🔐 Authentication & Authorization System
 
-- JWT implementation: `backend/src/auth/strategies/jwt.strategy.ts`
-- Auth guard: `backend/src/utils/guards/auth.guard.ts`
-- CASL permission management:
+- **JWT Implementation** : Secure token-based authentication
+
+  - (`backend/src/auth/strategies/jwt.strategy.ts`)
+
+- **Auth Guards** : Protects routes from unauthorized access
+
+  - (`backend/src/utils/guards/auth.guard.ts`)
+
+- **CASL Permission Management** : Fine-grained access control based on user roles
+- Ability factory:
+
   - `backend/src/casl/casl-ability.factory`
+
+* Policy guard:
   - `backend/src/utils/guards/policy.guard.ts`
 
 ### User Roles
 
-1. **Admin**: Full CRUD operations
-2. **Editor**: Create, read, and update operations
-3. **Viewer**: Read-only access
+1. **Admin (Full Control)**
+   This user can any operations in the application such as
+
+   - Create, read, update, and delete all documents
+   - Register new User
+   - Create and get details of an Ingestion
+
+2. **Editor (Content Management)**
+
+   - Create new documents
+   - Read and update existing documents
+   - Create and Details of ingestion
+
+3. **Viewer (Read-Only)**
+
+   - View documents and metadata
+   - No modification capabilities
+   - Details of ingestion
+
+### 📄 Document Processing Pipeline
+
+- **Ingestion Service** : Mock implementation that simulates document processing
+- **Status Tracking** : Real-time updates on document processing state
+
+# 🚀 Getting Started
 
 ## Prerequisites
 
@@ -58,9 +100,10 @@ docker-compose ps
 
 ## API Access
 
-### Swagger Documentation
+### Accessing Swagger UI
 
-Available at: http://localhost:4000/api/doc
+After starting the services, the interactive API documentation is available at:
+🔗 [http://localhost:4000/api/doc](http://localhost:4000/api/doc)
 
 ### Admin Authentication
 
@@ -71,20 +114,30 @@ curl -X 'POST' \
   -d '{"email":"admin@jkTech.com","password":"admin@123"}'
 ```
 
-### Key Endpoints:
+Sample Response:
 
-#### 1. Start Ingestion Endpoint
+```
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+
+}
+```
+
+## Key API Endpoints
+
+### 1. Document Ingestion Endpoint
 
 **`POST /api/v1/ingestion`**
 
-- Purpose: Triggers processing of a document
-- Request:
+Purpose: Initiates document processing workflow
 
-  ```
-  {
-    "documentId": "string"
-  }
-  ```
+Request:
+
+```
+{
+  "documentId": "string"
+}
+```
 
 - Response:
 
@@ -114,6 +167,57 @@ curl -X 'POST' \
     "updatedAt": "2025-03-28T00:27:24.081Z"
   }
   ```
+
+### 3. Document Management
+
+**`GET /api/v1/documents`** - List all accessible documents
+**`POST /api/v1/documents`** - Upload new document
+**`GET /api/v1/documents/{id}`** - Get document details
+**`PATCH /api/v1/documents/{id}`** - Update document metadata
+**`DELETE /api/v1/documents/{id}`** - Delete document (Admin only)
+
+## 4. User Registration (Admin Only)
+
+**Endpoint:**
+`POST /api/v1/user/register`
+_Requires Admin privileges_
+
+### Request
+
+```
+curl -X 'POST' \
+  'http://localhost:4000/api/v1/user/register' \
+  -H 'Authorization: Bearer YOUR_ADMIN_JWT' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "role": "VIEWER",
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+| Field      | Type   | Required | Description               | Allowed Values              |
+| ---------- | ------ | -------- | ------------------------- | --------------------------- |
+| `role`     | string | Yes      | User's role in the system | `ADMIN`, `EDITOR`, `VIEWER` |
+| `name`     | string | Yes      | Full name of the user     | 2-100 characters            |
+| `email`    | string | Yes      | Unique email address      | Valid email format          |
+| `password` | string | Yes      | Account password          | Min 12 characters           |
+
+## Successful Response (201 Created)
+
+```
+{
+  "id": "cd1bf425-7857-4090-a02e-9861ef722011",
+  "role": {
+    "id": "e2676c70-faef-4c61-b285-bdd75abcbd71"
+  },
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "createdAt": "2025-03-28T08:21:26.252Z",
+  "updatedAt": "2025-03-28T08:21:26.252Z"
+}
+```
 
 ## Testing (QA)
 

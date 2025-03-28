@@ -52,4 +52,9 @@ export class DocumentController {
   update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
     return this.documentService.update(id, file);
   }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.documentService.remove(id);
+  }
 }
