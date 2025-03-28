@@ -47,7 +47,6 @@ describe('IngestionController', () => {
       .useValue(mockPoliciesGuard)
       .compile();
 
-    // Manually apply the decorators metadata for testing
     Reflect.defineMetadata(
       '__guards__',
       [PoliciesGuard],

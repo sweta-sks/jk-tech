@@ -10,7 +10,6 @@ describe('RoleService', () => {
   let service: RoleService;
   let roleRepository: Repository<Role>;
 
-  // Mock repository implementation
   const mockRoleRepository = {
     find: jest.fn(),
     findOne: jest.fn(),
@@ -22,15 +21,9 @@ describe('RoleService', () => {
       providers: [
         RoleService,
         {
-          // Provide the actual token you're using to inject the repository
-          provide: 'ROLES_PROVIDER', // This should match your constant
+          provide: 'ROLES_PROVIDER',
           useValue: mockRoleRepository,
         },
-        // Alternatively, if you're using the TypeORM repository pattern:
-        // {
-        //   provide: getRepositoryToken(Role),
-        //   useValue: mockRoleRepository,
-        // }
       ],
     }).compile();
 

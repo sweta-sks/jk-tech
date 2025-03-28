@@ -18,10 +18,6 @@ describe('RoleController', () => {
   let controller: RoleController;
   let service: RoleService;
 
-  // Generate test UUIDs
-  const testRoleId = uuidv4();
-  const testPermissionId = uuidv4();
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RoleController],

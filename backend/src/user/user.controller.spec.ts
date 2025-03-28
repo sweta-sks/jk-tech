@@ -46,7 +46,6 @@ describe('UserController', () => {
       .useValue(mockPoliciesGuard)
       .compile();
 
-    // Manually apply decorator metadata for testing
     Reflect.defineMetadata(
       '__guards__',
       [PoliciesGuard],

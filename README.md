@@ -11,10 +11,13 @@ A robust document management system built with NestJS, PostgreSQL, and RabbitMQ,
 ## System Architecture
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   NestJS    │───▶│ PostgreSQL  │    │  RabbitMQ   │
-│  API Gateway│    │  (TypeORM)  │◀──▶│ (Microservices)
-└─────────────┘    └─────────────┘    └─────────────┘
+
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│                  │     │                  │     │                  │
+│   NestJS         │─ ▶│  PostgreSQL      │──▶│   RabbitMQ       │
+│   API Gateway    │     │  (TypeORM)       │     │  (Microservices) │
+│                  │     │                  │     │                  │
+└──────────────────┘     └──────────────────┘     └──────────────────┘
 ```
 
 ## Key Components

@@ -53,7 +53,7 @@ describe('UserService', () => {
       providers: [
         UserService,
         {
-          provide: USER_PROVIDER, // Use the actual token from your constant
+          provide: USER_PROVIDER,
           useValue: mockUserRepository,
         },
         {
@@ -132,7 +132,6 @@ describe('UserService', () => {
         updatedAt: '2025-03-27T11:09:49.859Z',
       };
 
-      // Mock the query builder chain
       const queryBuilder = {
         addSelect: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
@@ -149,7 +148,6 @@ describe('UserService', () => {
         'password',
       );
 
-      // Create expected result without password
       const { password: _, ...expectedUser } = mockUser;
 
       expect(result).toEqual(expectedUser);

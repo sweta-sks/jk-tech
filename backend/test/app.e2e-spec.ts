@@ -5,7 +5,7 @@ import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let token: string; // Store auth token here
+  let token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -29,7 +29,7 @@ describe('AppController (e2e)', () => {
   it('/ (GET) should return 200 OK', () => {
     return request(app.getHttpServer())
       .get('/')
-      .set('Authorization', `Bearer ${token}`) // 🔹 Add auth token
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect('Hello World!');
   });
